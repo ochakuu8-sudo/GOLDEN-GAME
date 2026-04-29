@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>GOLDEN GAME</title>
+  <meta name="description" content="15秒でどれだけ金を拾えるか。GOLDEN GAMEはスマホで遊べる短尺スコアアタックです。" />
+  <meta property="og:title" content="GOLDEN GAME" />
+  <meta property="og:description" content="15秒で金を拾え。爆弾を避けて黄金王を目指せ。" />
+  <style>
+    :root {
+      --bg: #10080f;
+      --panel: #1c1119;
+      --gold: #ffd447;
+      --gold2: #ff9f1c;
+      --red: #ff3b4f;
+      --cyan: #5ee6ff;
+      --white: #fff7d6;
+      --muted: #b69b72;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 15%, #332013 0%, #160a12 38%, #070407 100%);
+      color: var(--white);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      min-height: 520px;
+      overflow: hidden;
+    }
+
+    #game {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 212, 71, .08), transparent 28%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 40px),
+        linear-gradient(180deg, #170b13 0%, #080407 100%);
+    }
+
+    #city {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 110px;
+      opacity: .9;
+      background:
+        linear-gradient(transparent 0 20px, rgba(0,0,0,.35) 20px 100%),
+        repeating-linear-gradient(90deg,
+          #24111d 0 22px,
+          #32151f 22px 42px,
+          #170a13 42px 64px);
+      filter: drop-shadow(0 -8px 18px rgba(255, 180, 35, .15));
+    }
+
+    #city::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 74px 0;
+      height: 42px;
+      background: repeating-linear-gradient(90deg,
+        transparent 0 18px,
+        rgba(255, 212, 71, .35) 18px 22px,
+        transparent 22px 46px);
+    }
+
+    #hud {
+      position: absolute;
+      z-index: 10;
+      top: max(12px, env(safe-area-inset-top));
+      left: 12px;
+      right: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: start;
+      pointer-events: none;
+    }
+
+    .hudBox {
+      background: rgba(14, 8, 13, .72);
+      border: 1px solid rgba(255, 212, 71, .38);
+      box-shadow: 0 0 18px rgba(255, 160, 28, .12), inset 0 0 0 1px rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 10px 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    #score {
+      font-weight: 900;
+      font-size: clamp(22px, 7vw, 38px);
+      letter-spacing: .02em;
+      color: var(--gold);
+      text-shadow: 0 2px 0 #5f2800, 0 0 16px rgba(255, 212, 71, .55);
+      line-height: 1;
+    }
+
+    #combo {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+
+    #timer {
+      min-width: 74px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 950;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    #player {
+      position: absolute;
+      z-index: 5;
+      width: 68px;
+      height: 72px;
+      left: calc(50% - 34px);
+      bottom: 74px;
+      transform: translate3d(0,0,0);
+      filter: drop-shadow(0 8px 0 rgba(0,0,0,.35)) drop-shadow(0 0 16px rgba(255, 212, 71, .26));
+    }
+
+    .crown {
+      position: absolute;
+      left: 18px;
+      top: 0;
+      width: 32px;
+      height: 18px;
+      background: linear-gradient(180deg, #fff48b, #ffb01f);
+      clip-path: polygon(0 100%, 0 35%, 20% 70%, 35% 0, 50% 68%, 65% 0, 80% 70%, 100% 35%, 100% 100%);
+      border-bottom: 3px solid #8a3c00;
+    }
+
+    .body {
+      position: absolute;
+      left: 10px;
+      top: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 18px 18px 14px 14px;
+      background: linear-gradient(180deg, #ffe06a 0%, #ff9f1c 55%, #b65300 100%);
+      border: 3px solid #5a2500;
+    }
+
+    .face {
+      position: absolute;
+      left: 22px;
+      top: 34px;
+      width: 24px;
+      height: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .face::before,
+    .face::after {
+      content: "";
+      width: 6px;
+      height: 8px;
+      background: #2b1000;
+      border-radius: 50%;
+    }
+
+    .bag {
+      position: absolute;
+      left: 40px;
+      top: 40px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50% 50% 45% 45%;
+      background: linear-gradient(180deg, #f4d28d, #9f6830);
+      border: 3px solid #4d250a;
+    }
+
+    .item {
+      position: absolute;
+      z-index: 3;
+      width: 38px;
+      height: 38px;
+      transform: translate3d(0,0,0);
+      will-change: transform;
+    }
+
+    .coin {
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 28%, #fff7aa 0 15%, transparent 16%),
+        radial-gradient(circle, #ffe86c 0 42%, #ffb31f 44% 68%, #8a4300 70% 100%);
+      box-shadow: 0 0 14px rgba(255, 212, 71, .75);
+      border: 2px solid #6d3300;
+    }
+
+    .coin::after {
+      content: "G";
+      position: absolute;
+      inset: 8px 0 0 0;
+      text-align: center;
+      font-weight: 950;
+      font-size: 16px;
+      color: #8a3c00;
+    }
+
+    .bomb {
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #6f6f7c, #201c25 62%, #080609 100%);
+      border: 2px solid #000;
+      box-shadow: 0 0 12px rgba(255, 59, 79, .28);
+    }
+
+    .bomb::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: -9px;
+      width: 16px;
+      height: 14px;
+      border-top: 3px solid #ffb14a;
+      border-right: 3px solid #ffb14a;
+      border-radius: 0 10px 0 0;
+      transform: rotate(-18deg);
+    }
+
+    .bomb::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -12px;
+      width: 10px;
+      height: 10px;
+      background: #ff3b4f;
+      clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+
+    .gem {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #ffffff, #5ee6ff 36%, #3262ff 100%);
+      clip-path: polygon(50% 0, 100% 35%, 78% 100%, 22% 100%, 0 35%);
+      box-shadow: 0 0 22px rgba(94, 230, 255, .8);
+    }
+
+    .pop {
+      position: absolute;
+      z-index: 20;
+      font-size: 20px;
+      font-weight: 950;
+      color: var(--gold);
+      text-shadow: 0 2px 0 #421800, 0 0 10px rgba(255, 212, 71, .75);
+      pointer-events: none;
+      animation: floatUp .7s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      from { opacity: 1; transform: translate3d(0,0,0) scale(1); }
+      to { opacity: 0; transform: translate3d(0,-48px,0) scale(1.25); }
+    }
+
+    .shake { animation: shake .16s linear 2; }
+    @keyframes shake {
+      0%, 100% { transform: translate3d(0,0,0); }
+      25% { transform: translate3d(6px,0,0); }
+      50% { transform: translate3d(-6px,0,0); }
+      75% { transform: translate3d(3px,0,0); }
+    }
+
+    #start, #result {
+      position: absolute;
+      z-index: 50;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: radial-gradient(circle at 50% 30%, rgba(255, 212, 71, .16), rgba(5, 2, 5, .92) 58%, rgba(5,2,5,.98));
+    }
+
+    .card {
+      width: min(430px, 94vw);
+      border: 1px solid rgba(255, 212, 71, .5);
+      background: linear-gradient(180deg, rgba(35, 21, 26, .94), rgba(14, 8, 13, .96));
+      border-radius: 24px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 13vw, 64px);
+      line-height: .92;
+      letter-spacing: -0.06em;
+      color: var(--gold);
+      text-shadow: 0 4px 0 #6c2d00, 0 0 26px rgba(255, 212, 71, .45);
+    }
+
+    .lead {
+      margin: 14px auto 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+      max-width: 340px;
+    }
+
+    .bigResult {
+      margin-top: 16px;
+      font-size: clamp(42px, 14vw, 72px);
+      font-weight: 950;
+      color: var(--gold);
+      line-height: 1;
+      text-shadow: 0 4px 0 #6c2d00, 0 0 22px rgba(255, 212, 71, .5);
+    }
+
+    .rank {
+      margin-top: 10px;
+      font-size: 22px;
+      font-weight: 950;
+      color: var(--cyan);
+    }
+
+    button, a.button {
+      appearance: none;
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 15px;
+      text-decoration: none;
+      color: #2b1300;
+      background: linear-gradient(180deg, #fff17c, #ffb21d);
+      box-shadow: 0 6px 0 #8a3c00, 0 16px 28px rgba(0,0,0,.28);
+      cursor: pointer;
+    }
+
+    button:active, a.button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #8a3c00, 0 8px 18px rgba(0,0,0,.28);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .secondary {
+      color: var(--white);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: none;
+    }
+
+    #result { display: none; }
+
+    #guide {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 12;
+      width: min(360px, calc(100vw - 24px));
+      text-align: center;
+      color: rgba(255,255,255,.65);
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: none;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="game">
+      <div id="hud">
+        <div class="hudBox">
+          <div id="score">0G</div>
+          <div id="combo">COMBO x1</div>
+        </div>
+        <div class="hudBox" id="timer">15</div>
+      </div>
+
+      <div id="player" aria-hidden="true">
+        <div class="crown"></div>
+        <div class="body"></div>
+        <div class="face"></div>
+        <div class="bag"></div>
+      </div>
+      <div id="city"></div>
+      <div id="guide">左右にドラッグして金貨を拾う。爆弾は避ける。</div>
+    </div>
+
+    <div id="start">
+      <div class="card">
+        <h1>GOLDEN<br>GAME</h1>
+        <p class="lead">15秒で金を拾え。<br>爆弾に当たると大損。<br>黄金王を目指す短尺スコアアタック。</p>
+        <div class="buttons">
+          <button id="startBtn">START</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result">
+      <div class="card">
+        <h1>RESULT</h1>
+        <div class="bigResult" id="finalScore">0G</div>
+        <div class="rank" id="rank">小銭ハンター</div>
+        <p class="lead" id="resultText">もう一回やると金運が上がるかもしれない。</p>
+        <div class="buttons">
+          <button id="retryBtn">RETRY</button>
+          <a class="button secondary" id="shareBtn" href="#" target="_blank" rel="noopener">Xで結果を投稿</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const game = document.getElementById('game');
+  const app = document.getElementById('app');
+  const playerEl = document.getElementById('player');
+  const scoreEl = document.getElementById('score');
+  const comboEl = document.getElementById('combo');
+  const timerEl = document.getElementById('timer');
+  const start = document.getElementById('start');
+  const result = document.getElementById('result');
+  const finalScore = document.getElementById('finalScore');
+  const rankEl = document.getElementById('rank');
+  const resultText = document.getElementById('resultText');
+  const shareBtn = document.getElementById('shareBtn');
+  const startBtn = document.getElementById('startBtn');
+  const retryBtn = document.getElementById('retryBtn');
+
+  let running = false;
+  let score = 0;
+  let combo = 1;
+  let comboTimer = 0;
+  let timeLeft = 15;
+  let last = 0;
+  let spawnTimer = 0;
+  let playerX = 0;
+  let targetX = 0;
+  let items = [];
+
+  const player = { w: 68, h: 72, y: 0 };
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function rand(min, max) { return min + Math.random() * (max - min); }
+
+  function format(n) { return Math.max(0, Math.floor(n)).toLocaleString('ja-JP') + 'G'; }
+
+  function resize() {
+    const w = app.clientWidth;
+    player.y = app.clientHeight - 146;
+    playerX = clamp(playerX || w / 2, 34, w - 34);
+    targetX = clamp(targetX || playerX, 34, w - 34);
+    drawPlayer();
+  }
+
+  function drawPlayer() {
+    playerEl.style.transform = `translate3d(${playerX - 34}px, ${player.y}px, 0)`;
+  }
+
+  function resetGame() {
+    items.forEach(i => i.el.remove());
+    items = [];
+    running = true;
+    score = 0;
+    combo = 1;
+    comboTimer = 0;
+    timeLeft = 15;
+    spawnTimer = 0;
+    last = performance.now();
+    playerX = app.clientWidth / 2;
+    targetX = playerX;
+    scoreEl.textContent = format(score);
+    comboEl.textContent = 'COMBO x1';
+    timerEl.textContent = '15';
+    start.classList.add('hidden');
+    result.style.display = 'none';
+    game.classList.remove('shake');
+    resize();
+    requestAnimationFrame(loop);
+  }
+
+  function spawnItem() {
+    const roll = Math.random();
+    const type = roll < 0.72 ? 'coin' : roll < 0.9 ? 'bomb' : 'gem';
+    const el = document.createElement('div');
+    el.className = `item ${type}`;
+    game.appendChild(el);
+
+    const size = type === 'gem' ? 42 : 38;
+    const x = rand(16, app.clientWidth - size - 16);
+    const speed = type === 'bomb' ? rand(240, 340) : rand(190, 310);
+    const value = type === 'gem' ? 777 : 100;
+
+    items.push({ el, type, x, y: -60, size, speed, value, dead: false, spin: rand(-80, 80) });
+  }
+
+  function addPop(text, x, y, bad = false) {
+    const p = document.createElement('div');
+    p.className = 'pop';
+    p.textContent = text;
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+    if (bad) p.style.color = '#ff3b4f';
+    game.appendChild(p);
+    setTimeout(() => p.remove(), 760);
+  }
+
+  function hitTest(item) {
+    const px = playerX - player.w / 2;
+    const py = player.y + 8;
+    return !(
+      item.x + item.size < px ||
+      item.x > px + player.w ||
+      item.y + item.size < py ||
+      item.y > py + player.h
+    );
+  }
+
+  function rankFor(s) {
+    if (s >= 12000) return ['黄金神', 'これはもう金運ではなく暴力。'];
+    if (s >= 8000) return ['ゴールド王', '十分にXで自慢できる金額。'];
+    if (s >= 5000) return ['成金ランナー', 'かなり金色。まだ伸びる。'];
+    if (s >= 2500) return ['金ピカ見習い', '悪くない。爆弾を避ければ化ける。'];
+    return ['小銭ハンター', 'まずは爆弾を避けよう。'];
+  }
+
+  function endGame() {
+    running = false;
+    items.forEach(i => i.el.remove());
+    items = [];
+
+    const [rank, text] = rankFor(score);
+    finalScore.textContent = format(score);
+    rankEl.textContent = rank;
+    resultText.textContent = text;
+
+    const url = location.href.split('#')[0];
+    const tweet = `GOLDEN GAMEで${format(score)}獲得！\n称号：${rank}\n15秒で黄金王を目指せ。\n${url}`;
+    shareBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet);
+
+    result.style.display = 'flex';
+  }
+
+  function loop(now) {
+    if (!running) return;
+    const dt = Math.min((now - last) / 1000, 0.033);
+    last = now;
+
+    timeLeft -= dt;
+    timerEl.textContent = Math.max(0, Math.ceil(timeLeft)).toString();
+    if (timeLeft <= 0) return endGame();
+
+    playerX += (targetX - playerX) * Math.min(1, dt * 14);
+    drawPlayer();
+
+    comboTimer -= dt;
+    if (comboTimer <= 0 && combo > 1) {
+      combo = 1;
+      comboEl.textContent = 'COMBO x1';
+    }
+
+    spawnTimer -= dt;
+    const interval = Math.max(0.18, 0.45 - (15 - timeLeft) * 0.012);
+    if (spawnTimer <= 0) {
+      spawnItem();
+      spawnTimer = interval;
+      if (Math.random() < 0.18) spawnItem();
+    }
+
+    for (const item of items) {
+      item.y += item.speed * dt;
+      item.x += Math.sin((now / 220) + item.spin) * dt * 18;
+      item.el.style.transform = `translate3d(${item.x}px, ${item.y}px, 0) rotate(${item.y * 2}deg)`;
+
+      if (!item.dead && hitTest(item)) {
+        item.dead = true;
+        item.el.remove();
+
+        if (item.type === 'bomb') {
+          const loss = Math.min(score, 500 * combo);
+          score -= loss;
+          combo = 1;
+          comboTimer = 0;
+          comboEl.textContent = 'COMBO x1';
+          scoreEl.textContent = format(score);
+          addPop('-' + format(loss), playerX - 22, player.y - 24, true);
+          game.classList.remove('shake');
+          void game.offsetWidth;
+          game.classList.add('shake');
+        } else {
+          const gain = item.value * combo;
+          score += gain;
+          combo = clamp(combo + 1, 1, 9);
+          comboTimer = 1.1;
+          scoreEl.textContent = format(score);
+          comboEl.textContent = `COMBO x${combo}`;
+          addPop('+' + format(gain), item.x, item.y);
+        }
+      }
+    }
+
+    items = items.filter(i => {
+      if (i.dead) return false;
+      if (i.y > app.clientHeight + 80) {
+        i.el.remove();
+        return false;
+      }
+      return true;
+    });
+
+    requestAnimationFrame(loop);
+  }
+
+  function setTargetFromClientX(x) {
+    targetX = clamp(x, 34, app.clientWidth - 34);
+  }
+
+  game.addEventListener('pointerdown', e => {
+    if (!running) return;
+    game.setPointerCapture(e.pointerId);
+    setTargetFromClientX(e.clientX);
+  });
+
+  game.addEventListener('pointermove', e => {
+    if (!running) return;
+    setTargetFromClientX(e.clientX);
+  });
+
+  window.addEventListener('keydown', e => {
+    if (!running) return;
+    const step = 42;
+    if (e.key === 'ArrowLeft' || e.key === 'a') targetX -= step;
+    if (e.key === 'ArrowRight' || e.key === 'd') targetX += step;
+    targetX = clamp(targetX, 34, app.clientWidth - 34);
+  });
+
+  startBtn.addEventListener('click', resetGame);
+  retryBtn.addEventListener('click', resetGame);
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>
