@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>GOLDEN VOXEL</title>
+<meta name="description" content="ブラウザで動く小さなマイクラ風ボクセル実験。タップで選択、BREAK/PLACEでブロック編集。" />
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08070a;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}#app{position:fixed;inset:0;overflow:hidden;background:radial-gradient(circle at 50% 20%,#23334d 0,#0b0d13 54%,#050407 100%)}#view{position:absolute;inset:0}#hud{position:absolute;z-index:10;left:12px;right:12px;top:max(12px,env(safe-area-inset-top));display:grid;grid-template-columns:1fr auto;gap:10px;pointer-events:none}.panel{background:rgba(8,8,12,.66);border:1px solid rgba(255,212,71,.36);border-radius:16px;padding:10px 12px;box-shadow:0 16px 50px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.05);backdrop-filter:blur(10px)}h1{margin:0;font-size:22px;line-height:1;color:#ffd447;text-shadow:0 2px 0 #6b3300,0 0 18px rgba(255,212,71,.45);letter-spacing:-.03em}.sub{margin-top:5px;font-size:12px;color:#cdbb8c;line-height:1.45}#stats{font-size:12px;color:#fff7d6;line-height:1.55;text-align:right;min-width:112px}.gold{color:#ffd447;font-weight:900}#controls{position:absolute;z-index:11;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}button{appearance:none;border:0;min-height:48px;padding:0 18px;border-radius:999px;background:linear-gradient(180deg,#fff37e,#ffb21f);color:#2b1300;font-weight:950;font-size:14px;box-shadow:0 6px 0 #8b3c00,0 16px 28px rgba(0,0,0,.26)}button:active{transform:translateY(4px);box-shadow:0 2px 0 #8b3c00,0 8px 16px rgba(0,0,0,.24)}button.alt{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);box-shadow:none}.chip{min-height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;background:rgba(8,8,12,.64);border:1px solid rgba(255,255,255,.15);font-size:13px;color:#ddd}.swatch{width:18px;height:18px;border-radius:5px;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(0,0,0,.45)}#hint{position:absolute;z-index:9;left:50%;bottom:86px;transform:translateX(-50%);width:min(460px,calc(100vw - 24px));text-align:center;font-size:12px;line-height:1.5;color:rgba(255,255,255,.7);text-shadow:0 2px 8px #000;pointer-events:none}#start{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 30%,rgba(255,212,71,.16),rgba(5,5,8,.88) 60%,rgba(5,5,8,.96))}.card{width:min(430px,94vw);text-align:center;border-radius:24px;padding:24px 20px;background:linear-gradient(180deg,rgba(26,24,31,.94),rgba(8,8,12,.96));border:1px solid rgba(255,212,71,.45);box-shadow:0 24px 80px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.06)}.title{font-size:clamp(42px,13vw,64px);color:#ffd447;line-height:.92;font-weight:1000;letter-spacing:-.07em;text-shadow:0 4px 0 #6b3300,0 0 26px rgba(255,212,71,.45)}.lead{margin:14px auto 0;max-width:340px;color:#cdbb8c;font-size:14px;line-height:1.7}.hidden{display:none!important}@media (max-width:420px){#hud{grid-template-columns:1fr}.panel{padding:9px 10px}#stats{text-align:left}#hint{bottom:136px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view"></div>
+  <div id="hud">
+    <div class="panel"><h1>GOLDEN VOXEL</h1><div class="sub">Three.jsで作った小型マイクラ風プロトタイプ</div></div>
+    <div class="panel" id="stats">BLOCKS <span class="gold" id="count">0</span><br>SELECT <span class="gold" id="selected">NONE</span></div>
+  </div>
+  <div id="hint">ドラッグで視点回転。タップ/クリックでブロック選択。BREAKで削除、PLACEで選択地点の上に追加。</div>
+  <div id="controls">
+    <button id="breakBtn">BREAK</button>
+    <button id="placeBtn">PLACE</button>
+    <button class="alt" id="resetBtn">RESET</button>
+    <div class="chip"><span class="swatch" id="swatch"></span><span id="blockName">GOLD</span></div>
+  </div>
+  <div id="start"><div class="card"><div class="title">GOLDEN<br>VOXEL</div><p class="lead">ブラウザだけで動く、超小型マイクラ風実験。<br>ブロックを壊して、置いて、どのくらい動くか確認するためのデモです。</p><div style="margin-top:22px"><button id="startBtn">START</button></div></div></div>
+</div>
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+const view=document.getElementById('view');
+const start=document.getElementById('start');
+const startBtn=document.getElementById('startBtn');
+const countEl=document.getElementById('count');
+const selectedEl=document.getElementById('selected');
+const blockName=document.getElementById('blockName');
+const swatch=document.getElementById('swatch');
+const breakBtn=document.getElementById('breakBtn');
+const placeBtn=document.getElementById('placeBtn');
+const resetBtn=document.getElementById('resetBtn');
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x101523);
+scene.fog=new THREE.Fog(0x101523,18,48);
+
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+
+const hemi=new THREE.HemisphereLight(0xbfd7ff,0x302010,2.1);
+scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff2c0,2.4);
+sun.position.set(8,16,10);
+sun.castShadow=true;
+sun.shadow.mapSize.set(1024,1024);
+sun.shadow.camera.near=1;
+sun.shadow.camera.far=60;
+sun.shadow.camera.left=-20;
+sun.shadow.camera.right=20;
+sun.shadow.camera.top=20;
+sun.shadow.camera.bottom=-20;
+scene.add(sun);
+
+const cubeGeo=new THREE.BoxGeometry(1,1,1);
+const edgeGeo=new THREE.EdgesGeometry(cubeGeo);
+const mats={
+  grass:new THREE.MeshStandardMaterial({color:0x54b657,roughness:.9,metalness:.02}),
+  dirt:new THREE.MeshStandardMaterial({color:0x8a5a32,roughness:.95}),
+  stone:new THREE.MeshStandardMaterial({color:0x777b84,roughness:.9}),
+  gold:new THREE.MeshStandardMaterial({color:0xffc928,roughness:.45,metalness:.35,emissive:0x332000,emissiveIntensity:.25}),
+  water:new THREE.MeshStandardMaterial({color:0x2477ff,roughness:.2,metalness:.05,transparent:true,opacity:.7})
+};
+const edgeMat=new THREE.LineBasicMaterial({color:0x000000,transparent:true,opacity:.18});
+const selectMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.28,depthWrite:false});
+
+const blocks=new Map();
+const group=new THREE.Group();
+scene.add(group);
+let selected=null;
+let blockType='gold';
+const palette=['gold','grass','stone','dirt','water'];
+let paletteIndex=0;
+
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+const selectBox=new THREE.Mesh(new THREE.BoxGeometry(1.06,1.06,1.06),selectMat);
+selectBox.visible=false;
+scene.add(selectBox);
+
+function key(x,y,z){return `${x},${y},${z}`}
+function parseKey(k){return k.split(',').map(Number)}
+function h(x,z){return Math.max(0,Math.floor(1.5+Math.sin(x*.7)*1.2+Math.cos(z*.55)*1.1+Math.sin((x+z)*.35)))}
+function addBlock(x,y,z,type='grass'){
+  const k=key(x,y,z); if(blocks.has(k))return;
+  const mesh=new THREE.Mesh(cubeGeo,mats[type]);
+  mesh.position.set(x,y,z);
+  mesh.castShadow=true; mesh.receiveShadow=true;
+  mesh.userData={x,y,z,type};
+  const edge=new THREE.LineSegments(edgeGeo,edgeMat);
+  edge.position.copy(mesh.position);
+  edge.userData={edge:true,parentKey:k};
+  group.add(mesh); group.add(edge);
+  blocks.set(k,{mesh,edge,type});
+}
+function removeBlock(k){
+  const b=blocks.get(k); if(!b)return;
+  group.remove(b.mesh); group.remove(b.edge);
+  b.mesh.geometry.dispose; blocks.delete(k);
+  if(selected&&selected.key===k){selected=null;selectBox.visible=false;selectedEl.textContent='NONE'}
+}
+function resetWorld(){
+  for(const b of blocks.values()){group.remove(b.mesh);group.remove(b.edge)}
+  blocks.clear(); selected=null; selectBox.visible=false; selectedEl.textContent='NONE';
+  const size=16;
+  for(let x=-size/2;x<size/2;x++)for(let z=-size/2;z<size/2;z++){
+    const top=h(x,z);
+    for(let y=0;y<=top;y++){
+      let type=y===top?'grass':(y<top-1?'stone':'dirt');
+      if((x===-3&&z===2)||(x===4&&z===-2)||(x===1&&z===5)) type=y===top?'gold':type;
+      if(y===top&&Math.abs(x+5)<2&&Math.abs(z-4)<2) type='water';
+      addBlock(x,y,z,type);
+    }
+  }
+  updateCount();
+}
+function updateCount(){countEl.textContent=blocks.size.toString()}
+
+function setBlockType(next){
+  blockType=next; blockName.textContent=next.toUpperCase();
+  const c=mats[next].color.getStyle(); swatch.style.background=c;
+}
+setBlockType(blockType);
+
+let yaw=.78,pitch=.72,dist=22,target=new THREE.Vector3(0,2,0);
+function updateCamera(){
+  pitch=Math.max(.25,Math.min(1.18,pitch));
+  dist=Math.max(10,Math.min(34,dist));
+  const x=Math.sin(yaw)*Math.cos(pitch)*dist;
+  const z=Math.cos(yaw)*Math.cos(pitch)*dist;
+  const y=Math.sin(pitch)*dist;
+  camera.position.set(target.x+x,target.y+y,target.z+z);
+  camera.lookAt(target);
+}
+updateCamera();
+
+let down=false,moved=false,lastX=0,lastY=0,downX=0,downY=0;
+function setPointer(e){
+  const rect=renderer.domElement.getBoundingClientRect();
+  pointer.x=((e.clientX-rect.left)/rect.width)*2-1;
+  pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+}
+function pick(e){
+  setPointer(e); raycaster.setFromCamera(pointer,camera);
+  const hits=raycaster.intersectObjects(group.children,false).filter(h=>!h.object.userData.edge);
+  if(!hits.length){selected=null;selectBox.visible=false;selectedEl.textContent='NONE';return}
+  const hit=hits[0];
+  const o=hit.object.userData;
+  selected={key:key(o.x,o.y,o.z),x:o.x,y:o.y,z:o.z,normal:hit.face.normal.clone().transformDirection(hit.object.matrixWorld).round()};
+  selectBox.position.set(o.x,o.y,o.z);
+  selectBox.visible=true;
+  selectedEl.textContent=`${o.type.toUpperCase()} ${o.x},${o.y},${o.z}`;
+}
+renderer.domElement.addEventListener('pointerdown',e=>{down=true;moved=false;lastX=downX=e.clientX;lastY=downY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!down)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  if(Math.abs(e.clientX-downX)+Math.abs(e.clientY-downY)>8)moved=true;
+  yaw-=dx*.006; pitch+=dy*.005;
+  lastX=e.clientX; lastY=e.clientY; updateCamera();
+});
+renderer.domElement.addEventListener('pointerup',e=>{if(!moved)pick(e);down=false});
+renderer.domElement.addEventListener('wheel',e=>{dist+=e.deltaY*.01;updateCamera()},{passive:true});
+
+breakBtn.onclick=()=>{if(selected){removeBlock(selected.key);updateCount()}};
+placeBtn.onclick=()=>{
+  if(!selected)return;
+  const n=selected.normal;
+  const x=selected.x+n.x,y=selected.y+n.y,z=selected.z+n.z;
+  addBlock(x,y,z,blockType); updateCount();
+};
+resetBtn.onclick=()=>resetWorld();
+document.querySelector('.chip').onclick=()=>{paletteIndex=(paletteIndex+1)%palette.length;setBlockType(palette[paletteIndex])};
+startBtn.onclick=()=>start.classList.add('hidden');
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+});
+
+resetWorld();
+let t=0;
+function loop(now){
+  t=now*.001;
+  selectBox.rotation.y=t*1.6;
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
