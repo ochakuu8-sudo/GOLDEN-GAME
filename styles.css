@@ -330,18 +330,17 @@ button.symbol-card {
 }
 
 @media (max-width: 900px) {
-  body {
-    overflow: auto;
-  }
-
   .app-shell {
-    height: auto;
-    min-height: 100dvh;
+    width: min(100% - 16px, 1200px);
   }
 
   .top-bar,
   .game-layout {
     grid-template-columns: 1fr;
+  }
+
+  .game-layout {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 0.9fr);
   }
 
   .hero-card {
@@ -357,109 +356,247 @@ button.symbol-card {
   }
 
   .side-panel {
-    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .slot-grid {
-    grid-template-rows: repeat(3, 78px);
+    grid-template-rows: repeat(3, minmax(54px, 1fr));
   }
 }
 
 @media (max-width: 620px) {
+  html,
   body {
-    overflow: auto;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  button {
+    padding: 0.48rem 0.78rem;
+    font-size: 0.78rem;
+    box-shadow: 0 3px 0 var(--gold-deep), 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 
   .app-shell {
-    width: min(100% - 14px, 1200px);
-    padding: 7px 0;
-    gap: 7px;
+    width: min(100% - 10px, 430px);
+    height: 100dvh;
+    min-height: 0;
+    padding: max(5px, env(safe-area-inset-top)) 0 max(5px, env(safe-area-inset-bottom));
+    gap: 5px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .top-bar {
+    gap: 5px;
+  }
+
+  .hero-card,
+  .status-grid article,
+  .board-card,
+  .choice-card,
+  .deck-card {
+    border-radius: 13px;
   }
 
   .hero-card {
-    padding: 10px 12px;
+    min-height: 38px;
+    padding: 6px 9px;
+    justify-content: center;
   }
 
-  .lead {
+  .hero-card::after,
+  .eyebrow,
+  .lead,
+  .choice-card p,
+  .symbol-card p {
     display: none;
   }
 
   h1 {
-    font-size: 2.15rem;
+    font-size: clamp(1.45rem, 8vw, 2rem);
+    line-height: 0.9;
+    text-align: center;
+    text-shadow: 0 2px 0 #6c3600, 0 0 18px rgba(255, 209, 102, 0.32);
+  }
+
+  h2 {
+    margin-bottom: 0;
+    font-size: 0.78rem;
+    line-height: 1;
   }
 
   .status-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    gap: 4px;
   }
 
   .status-grid article {
-    min-height: 58px;
-    padding: 8px;
-    border-radius: 14px;
+    min-height: 44px;
+    padding: 5px 4px;
+    text-align: center;
   }
 
   .status-grid span {
-    font-size: 0.62rem;
+    font-size: 0.55rem;
+    line-height: 1;
   }
 
   .status-grid strong {
-    font-size: 1rem;
+    margin-top: 3px;
+    font-size: 0.9rem;
   }
 
-  .game-layout,
-  .side-panel {
-    gap: 7px;
+  .game-layout {
+    min-height: 0;
+    gap: 5px;
+    grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr);
   }
 
   .board-card,
   .choice-card,
   .deck-card {
-    padding: 10px;
-    border-radius: 16px;
+    padding: 7px;
+    min-height: 0;
   }
 
   .board-header,
   .deck-header {
-    gap: 8px;
+    gap: 6px;
+    min-height: 28px;
   }
 
-  .board-header p,
-  .choice-card p,
-  .symbol-card p {
-    font-size: 0.68rem;
+  .board-header p {
+    max-width: 220px;
+    margin-bottom: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.66rem;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .slot-grid {
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(3, 54px);
-    gap: 6px;
-    margin-top: 8px;
+    grid-template-rows: repeat(3, minmax(36px, 1fr));
+    gap: 4px;
+    margin-top: 6px;
   }
 
   .reel {
-    border-radius: 12px;
-    font-size: 1.75rem;
+    border-radius: 10px;
+    font-size: clamp(1.35rem, 8.2vw, 2.05rem);
   }
 
   .reel small {
-    font-size: 0.62rem;
+    margin-top: -2px;
+    font-size: 0.52rem;
+    line-height: 1;
+  }
+
+  .side-panel {
+    min-height: 0;
+    gap: 5px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .choice-card {
+    max-height: 118px;
+  }
+
+  .choice-card h2 {
+    margin-bottom: 5px;
+  }
+
+  .choices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    margin-top: 0;
+  }
+
+  .choices .symbol-card {
+    min-height: 62px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .deck-card {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .deck-header {
+    align-items: center;
+  }
+
+  .deck-list {
+    overflow: hidden;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 5px;
+    padding-right: 0;
   }
 
   .symbol-card {
-    padding: 7px;
-    gap: 7px;
-    border-radius: 12px;
+    min-width: 0;
+    padding: 5px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+
+  .deck-list .symbol-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
 
   .symbol-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    font-size: 1.3rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 1.15rem;
   }
 
   .symbol-card strong {
-    font-size: 0.78rem;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.6rem;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 620px) {
+  .hero-card {
+    display: none;
+  }
+
+  .status-grid article {
+    min-height: 38px;
+  }
+
+  .game-layout {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 0.82fr);
+  }
+
+  .choice-card {
+    max-height: 96px;
+  }
+
+  .choices .symbol-card {
+    min-height: 50px;
+  }
+
+  .symbol-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
   }
 }
