@@ -1,10 +1,9 @@
 :root {
   color-scheme: dark;
-  --bg: #140f1f;
-  --panel: rgba(35, 25, 50, 0.88);
+  --panel: rgba(35, 25, 50, 0.9);
   --panel-strong: rgba(55, 38, 78, 0.96);
   --gold: #ffd166;
-  --gold-deep: #b86b00;
+  --gold-deep: #9c5600;
   --mint: #75e6a7;
   --text: #fff8e8;
   --muted: #c8b9d8;
@@ -19,16 +18,20 @@
 
 html,
 body {
+  width: 100%;
   height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 body {
-  min-height: 100vh;
-  margin: 0;
-  overflow: hidden;
+  position: fixed;
+  inset: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(255, 209, 102, 0.2), transparent 30%),
-    radial-gradient(circle at 80% 0%, rgba(117, 230, 167, 0.14), transparent 34%),
+    radial-gradient(circle at 20% 20%, rgba(255, 209, 102, 0.22), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(117, 230, 167, 0.15), transparent 34%),
     linear-gradient(160deg, #120c1c 0%, #20112b 52%, #0d1020 100%);
   color: var(--text);
 }
@@ -36,28 +39,18 @@ body {
 button {
   border: 0;
   border-radius: 999px;
-  padding: 0.72rem 1.05rem;
+  padding: 0.5rem 0.72rem;
   background: linear-gradient(180deg, #ffe38f, #ffb02e);
   color: #321a00;
+  font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   cursor: pointer;
-  box-shadow: 0 5px 0 var(--gold-deep), 0 12px 24px rgba(0, 0, 0, 0.24);
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 var(--gold-deep), 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 0 var(--gold-deep), 0 8px 14px rgba(0, 0, 0, 0.24);
 }
 
 button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .secondary {
@@ -68,13 +61,15 @@ button:disabled {
 }
 
 .app-shell {
-  width: min(1200px, calc(100vw - 24px));
+  width: 100vw;
+  height: 100svh;
   height: 100dvh;
-  margin: 0 auto;
-  padding: 12px 0;
+  max-height: 100dvh;
+  padding: max(4px, env(safe-area-inset-top)) 5px max(4px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 12px;
+  grid-template-rows: 76px minmax(0, 1fr);
+  gap: 5px;
+  overflow: hidden;
 }
 
 .hero-card,
@@ -84,212 +79,215 @@ button:disabled {
 .deck-card {
   border: 1px solid var(--line);
   background: var(--panel);
-  border-radius: 22px;
-  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .top-bar {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(420px, 0.9fr);
-  gap: 12px;
   min-height: 0;
+  display: grid;
+  grid-template-rows: 30px 41px;
+  gap: 5px;
 }
 
 .hero-card {
-  min-height: 96px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  overflow: hidden;
-  position: relative;
+  min-height: 0;
+  padding: 3px 8px;
+  display: grid;
+  place-items: center;
+  text-align: center;
 }
 
-.hero-card::after {
-  content: "777";
-  position: absolute;
-  right: 16px;
-  top: -22px;
-  font-size: clamp(76px, 10vw, 140px);
-  line-height: 1;
-  color: rgba(255, 209, 102, 0.08);
-  font-weight: 1000;
-  letter-spacing: -0.12em;
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  color: var(--mint);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.hero-card::after,
+.eyebrow,
+.lead,
+.choice-card p,
+.symbol-card p {
+  display: none !important;
 }
 
 h1,
 h2,
 p {
-  margin-top: 0;
+  margin: 0;
 }
 
 h1 {
-  margin-bottom: 0;
   color: var(--gold);
-  font-size: clamp(2.15rem, 6vw, 4.6rem);
-  line-height: 0.85;
+  font-size: clamp(1.35rem, 7.4vw, 1.95rem);
+  line-height: 1;
   letter-spacing: -0.08em;
-  text-shadow: 0 4px 0 #6c3600, 0 0 28px rgba(255, 209, 102, 0.34);
   white-space: nowrap;
+  text-shadow: 0 2px 0 #6c3600, 0 0 16px rgba(255, 209, 102, 0.32);
 }
 
 h2 {
-  margin-bottom: 5px;
-  font-size: 1rem;
-}
-
-.lead {
-  position: relative;
-  z-index: 1;
-  max-width: 420px;
-  margin-bottom: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.55;
+  font-size: 0.74rem;
+  line-height: 1;
 }
 
 .status-grid {
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 4px;
 }
 
 .status-grid article {
-  min-height: 96px;
-  padding: 14px;
+  min-height: 0;
+  padding: 3px 2px;
   display: grid;
-  align-content: center;
+  place-items: center;
+  text-align: center;
 }
 
 .status-grid span {
   display: block;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.52rem;
   font-weight: 800;
+  line-height: 1;
 }
 
 .status-grid strong {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--gold);
-  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-size: 0.86rem;
   line-height: 1;
 }
 
 .game-layout {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 370px);
-  gap: 12px;
+  grid-template-rows: minmax(0, 1fr) 238px;
+  gap: 5px;
+  overflow: hidden;
 }
 
 .board-card,
 .choice-card,
 .deck-card {
-  padding: 16px;
   min-height: 0;
+  padding: 6px;
 }
 
 .board-card {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: 32px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.board-header,
+.deck-header {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.board-header p {
+  max-width: 210px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.05;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.slot-grid {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.reel {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 209, 102, 0.24);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  font-size: clamp(1.25rem, 8vw, 2.1rem);
+  line-height: 1;
+}
+
+.reel small {
+  display: block;
+  margin-top: -2px;
+  color: var(--gold);
+  font-size: 0.5rem;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
 }
 
 .side-panel {
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 12px;
+  gap: 5px;
+  overflow: hidden;
 }
 
-.board-header,
-.deck-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.choice-card.hidden {
+  display: none !important;
 }
 
-.board-header p,
-.choice-card p {
-  color: var(--muted);
-  margin-bottom: 0;
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.slot-grid {
-  min-height: 0;
+.choice-card {
+  max-height: 92px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(52px, 1fr));
-  grid-template-rows: repeat(3, minmax(72px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.reel {
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 209, 102, 0.24);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
-  font-size: clamp(2rem, 6vw, 4.8rem);
-  box-shadow: inset 0 -10px 24px rgba(0, 0, 0, 0.18);
-}
-
-.reel small {
-  display: block;
-  color: var(--gold);
-  font-size: 0.78rem;
-  font-weight: 900;
-  text-align: center;
+  grid-template-rows: 12px minmax(0, 1fr);
 }
 
 .choices,
 .deck-list {
+  min-height: 0;
   display: grid;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 4px;
+  margin-top: 4px;
+  overflow: hidden;
 }
 
 .choices {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .deck-card {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: 28px minmax(0, 1fr);
 }
 
 .deck-list {
-  overflow: auto;
-  padding-right: 3px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-content: start;
 }
 
 .symbol-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  align-items: center;
+  min-width: 0;
+  min-height: 0;
   width: 100%;
-  padding: 10px;
+  padding: 4px;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 10px;
   background: var(--panel-strong);
   color: var(--text);
-  text-align: left;
+  text-align: center;
 }
 
 button.symbol-card {
@@ -297,28 +295,22 @@ button.symbol-card {
 }
 
 .symbol-icon {
-  width: 42px;
-  height: 42px;
+  width: 27px;
+  height: 27px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 8px;
   background: rgba(255, 209, 102, 0.13);
-  font-size: 1.65rem;
-}
-
-.symbol-card p {
-  margin: 3px 0 0;
-  color: var(--muted);
-  font-size: 0.76rem;
-  line-height: 1.35;
+  font-size: 1.12rem;
 }
 
 .symbol-card strong {
-  font-size: 0.9rem;
-}
-
-.hidden {
-  display: none;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.58rem;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .win {
@@ -329,274 +321,175 @@ button.symbol-card {
   color: var(--danger);
 }
 
-@media (max-width: 900px) {
+@media (max-height: 700px) {
   .app-shell {
-    width: min(100% - 16px, 1200px);
-  }
-
-  .top-bar,
-  .game-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .game-layout {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 0.9fr);
-  }
-
-  .hero-card {
-    min-height: auto;
-  }
-
-  .status-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .status-grid article {
-    min-height: 76px;
-  }
-
-  .side-panel {
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .slot-grid {
-    grid-template-rows: repeat(3, minmax(54px, 1fr));
-  }
-}
-
-@media (max-width: 620px) {
-  html,
-  body {
-    height: 100%;
-    overflow: hidden;
-  }
-
-  body {
-    min-height: 100dvh;
-    overflow: hidden;
-  }
-
-  button {
-    padding: 0.48rem 0.78rem;
-    font-size: 0.78rem;
-    box-shadow: 0 3px 0 var(--gold-deep), 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  .app-shell {
-    width: min(100% - 10px, 430px);
-    height: 100dvh;
-    min-height: 0;
-    padding: max(5px, env(safe-area-inset-top)) 0 max(5px, env(safe-area-inset-bottom));
-    gap: 5px;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: 45px minmax(0, 1fr);
   }
 
   .top-bar {
-    gap: 5px;
-  }
-
-  .hero-card,
-  .status-grid article,
-  .board-card,
-  .choice-card,
-  .deck-card {
-    border-radius: 13px;
+    grid-template-rows: 0 41px;
+    gap: 4px;
   }
 
   .hero-card {
-    min-height: 38px;
-    padding: 6px 9px;
-    justify-content: center;
-  }
-
-  .hero-card::after,
-  .eyebrow,
-  .lead,
-  .choice-card p,
-  .symbol-card p {
     display: none;
   }
 
-  h1 {
-    font-size: clamp(1.45rem, 8vw, 2rem);
-    line-height: 0.9;
-    text-align: center;
-    text-shadow: 0 2px 0 #6c3600, 0 0 18px rgba(255, 209, 102, 0.32);
-  }
-
-  h2 {
-    margin-bottom: 0;
-    font-size: 0.78rem;
-    line-height: 1;
-  }
-
-  .status-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-  }
-
-  .status-grid article {
-    min-height: 44px;
-    padding: 5px 4px;
-    text-align: center;
-  }
-
-  .status-grid span {
-    font-size: 0.55rem;
-    line-height: 1;
-  }
-
-  .status-grid strong {
-    margin-top: 3px;
-    font-size: 0.9rem;
-  }
-
   .game-layout {
-    min-height: 0;
-    gap: 5px;
-    grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  }
-
-  .board-card,
-  .choice-card,
-  .deck-card {
-    padding: 7px;
-    min-height: 0;
-  }
-
-  .board-header,
-  .deck-header {
-    gap: 6px;
-    min-height: 28px;
-  }
-
-  .board-header p {
-    max-width: 220px;
-    margin-bottom: 0;
-    overflow: hidden;
-    color: var(--muted);
-    font-size: 0.66rem;
-    line-height: 1.15;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  .slot-grid {
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(3, minmax(36px, 1fr));
-    gap: 4px;
-    margin-top: 6px;
-  }
-
-  .reel {
-    border-radius: 10px;
-    font-size: clamp(1.35rem, 8.2vw, 2.05rem);
-  }
-
-  .reel small {
-    margin-top: -2px;
-    font-size: 0.52rem;
-    line-height: 1;
-  }
-
-  .side-panel {
-    min-height: 0;
-    gap: 5px;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 204px;
   }
 
   .choice-card {
-    max-height: 118px;
-  }
-
-  .choice-card h2 {
-    margin-bottom: 5px;
-  }
-
-  .choices {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    margin-top: 0;
-  }
-
-  .choices .symbol-card {
-    min-height: 62px;
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-
-  .deck-card {
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .deck-header {
-    align-items: center;
-  }
-
-  .deck-list {
-    overflow: hidden;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 4px;
-    margin-top: 5px;
-    padding-right: 0;
-  }
-
-  .symbol-card {
-    min-width: 0;
-    padding: 5px;
-    gap: 4px;
-    border-radius: 10px;
-  }
-
-  .deck-list .symbol-card {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
+    max-height: 76px;
   }
 
   .symbol-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    font-size: 1.15rem;
+    width: 23px;
+    height: 23px;
+    font-size: 0.98rem;
   }
 
   .symbol-card strong {
-    max-width: 100%;
-    overflow: hidden;
-    font-size: 0.6rem;
-    line-height: 1.1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 0.52rem;
   }
 }
 
-@media (max-height: 700px) and (max-width: 620px) {
+@media (min-width: 700px) {
+  body {
+    position: static;
+  }
+
+  .app-shell {
+    width: min(1200px, calc(100vw - 24px));
+    padding: 12px 0;
+    grid-template-rows: 100px minmax(0, 1fr);
+  }
+
+  .top-bar {
+    grid-template-columns: minmax(260px, 1fr) minmax(420px, 0.9fr);
+    grid-template-rows: 1fr;
+    gap: 12px;
+  }
+
   .hero-card {
-    display: none;
+    min-height: 0;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .eyebrow,
+  .lead {
+    display: block !important;
+  }
+
+  .eyebrow {
+    color: var(--mint);
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .lead {
+    max-width: 420px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  h1 {
+    font-size: clamp(2.15rem, 6vw, 4.6rem);
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  .status-grid {
+    gap: 10px;
   }
 
   .status-grid article {
-    min-height: 38px;
+    padding: 14px;
+  }
+
+  .status-grid span {
+    font-size: 0.72rem;
+  }
+
+  .status-grid strong {
+    font-size: clamp(1.25rem, 3vw, 2rem);
   }
 
   .game-layout {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 0.82fr);
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 370px);
+    grid-template-rows: 1fr;
+    gap: 12px;
+  }
+
+  .board-card,
+  .choice-card,
+  .deck-card {
+    padding: 16px;
+  }
+
+  .board-card {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .slot-grid {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .reel {
+    border-radius: 20px;
+    font-size: clamp(2rem, 6vw, 4.8rem);
+  }
+
+  .side-panel {
+    gap: 12px;
   }
 
   .choice-card {
-    max-height: 96px;
+    max-height: none;
   }
 
-  .choices .symbol-card {
-    min-height: 50px;
+  .choices {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .deck-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    overflow: auto;
+  }
+
+  .symbol-card {
+    grid-template-columns: auto 1fr;
+    justify-items: stretch;
+    text-align: left;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .symbol-card p {
+    display: block !important;
+    color: var(--muted);
+    font-size: 0.76rem;
+    line-height: 1.35;
   }
 
   .symbol-icon {
-    width: 24px;
-    height: 24px;
-    font-size: 1rem;
+    width: 42px;
+    height: 42px;
+    font-size: 1.65rem;
+  }
+
+  .symbol-card strong {
+    font-size: 0.9rem;
   }
 }
