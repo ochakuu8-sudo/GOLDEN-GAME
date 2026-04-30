@@ -8,58 +8,63 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="hero-card">
-        <p class="eyebrow">Slot Synergy Roguelike Prototype</p>
-        <h1>GOLDEN GAME</h1>
-        <p class="lead">
-          家族のシンボルを集めて、毎月の支払いを乗り越える小さなローグライク。
-          スピンして収入を得て、シンボル同士の組み合わせで盤面を育てよう。
-        </p>
-      </section>
-
-      <section class="status-grid" aria-label="ゲーム状況">
-        <article>
-          <span>所持金</span>
-          <strong id="money">0</strong>
-        </article>
-        <article>
-          <span>支払い</span>
-          <strong><span id="rent">25</span> / <span id="rentDue">5</span>ターン</strong>
-        </article>
-        <article>
-          <span>ターン</span>
-          <strong id="turn">1</strong>
-        </article>
-        <article>
-          <span>デッキ</span>
-          <strong id="deckSize">0</strong>
-        </article>
-      </section>
-
-      <section class="board-card">
-        <div class="board-header">
+      <header class="top-bar">
+        <section class="hero-card">
           <div>
-            <h2>スロット</h2>
-            <p id="turnSummary">スピンして今月の収入を作ろう。</p>
+            <p class="eyebrow">Slot Synergy Roguelike</p>
+            <h1>GOLDEN GAME</h1>
           </div>
-          <button id="spinButton" type="button">スピン</button>
-        </div>
-        <div id="slotGrid" class="slot-grid" aria-label="スロット盤面"></div>
-      </section>
+          <p class="lead">スピンして収入を得て、家族シンボルを増やし、支払いを乗り越えよう。</p>
+        </section>
 
-      <section class="choice-card hidden" id="choicePanel">
-        <h2>家族を迎える</h2>
-        <p>1つ選んでデッキに追加します。</p>
-        <div id="choices" class="choices"></div>
-      </section>
+        <section class="status-grid" aria-label="ゲーム状況">
+          <article>
+            <span>所持金</span>
+            <strong id="money">0</strong>
+          </article>
+          <article>
+            <span>支払い</span>
+            <strong><span id="rent">25</span>/<span id="rentDue">5</span>T</strong>
+          </article>
+          <article>
+            <span>ターン</span>
+            <strong id="turn">1</strong>
+          </article>
+          <article>
+            <span>デッキ</span>
+            <strong id="deckSize">0</strong>
+          </article>
+        </section>
+      </header>
 
-      <section class="deck-card">
-        <div class="deck-header">
-          <h2>現在の家族</h2>
-          <button id="resetButton" type="button" class="secondary">最初から</button>
-        </div>
-        <div id="deckList" class="deck-list"></div>
-      </section>
+      <div class="game-layout">
+        <section class="board-card">
+          <div class="board-header">
+            <div>
+              <h2>スロット</h2>
+              <p id="turnSummary">スピンして今月の収入を作ろう。</p>
+            </div>
+            <button id="spinButton" type="button">スピン</button>
+          </div>
+          <div id="slotGrid" class="slot-grid" aria-label="スロット盤面"></div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="choice-card hidden" id="choicePanel">
+            <h2>家族を迎える</h2>
+            <p>1つ選んで追加</p>
+            <div id="choices" class="choices"></div>
+          </section>
+
+          <section class="deck-card">
+            <div class="deck-header">
+              <h2>現在の家族</h2>
+              <button id="resetButton" type="button" class="secondary">最初から</button>
+            </div>
+            <div id="deckList" class="deck-list"></div>
+          </section>
+        </aside>
+      </div>
     </main>
 
     <template id="symbolTemplate">
